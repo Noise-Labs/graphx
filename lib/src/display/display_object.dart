@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:ui' as ui;
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart' as painting;
 import 'package:graphx/src/events/events.dart';
@@ -129,11 +130,9 @@ abstract class GDisplayObject
     }
   }
 
-  void $dispatchMouseCallback(
-    MouseInputType type,
-    GDisplayObject object,
-    MouseInputData input,
-  ) {
+  void $dispatchMouseCallback(MouseInputType type,
+      GDisplayObject object,
+      MouseInputData input,) {
     if (mouseEnabled) {
       var mouseInput = input.clone(this, object, type);
       switch (type) {
@@ -257,10 +256,18 @@ abstract class GDisplayObject
   Object userData;
   String name;
 
-  double _x = 0, _y = 0, _scaleX = 1, _scaleY = 1, _rotation = 0;
-  double _pivotX = 0, _pivotY = 0;
-  double _skewX = 0, _skewY = 0;
-  double _z = 0, _rotationX = 0, _rotationY = 0;
+  double _x = 0,
+      _y = 0,
+      _scaleX = 1,
+      _scaleY = 1,
+      _rotation = 0;
+  double _pivotX = 0,
+      _pivotY = 0;
+  double _skewX = 0,
+      _skewY = 0;
+  double _z = 0,
+      _rotationX = 0,
+      _rotationY = 0;
 
   double get rotationX => _rotationX;
 
@@ -347,69 +354,103 @@ abstract class GDisplayObject
   }
 
   set x(double value) {
-    if (value == null) throw 'x can not be null';
+    if (value?.isNaN ?? true) {
+      print('Error: [$this.x] can not be NaN nor null');
+      return;
+    }
+    // if (value == null) throw '$this:x can not be null';
+    if (value.isNaN) throw '$this:x can not be NaN';
     if (_x == value) return;
     _x = value;
     $setTransformationChanged();
   }
 
   set y(double value) {
-    if (value == null) throw 'y can not be null';
+    if (value?.isNaN ?? true) {
+      print('Error: [$this.y] can not be NaN nor null');
+      return;
+    }
     if (_y == value) return;
     _y = value;
     $setTransformationChanged();
   }
 
   set scaleX(double value) {
-    if (value == null) throw 'scaleX can not be null';
+    /// TODO: somehow is not throwing errors.
+    if (value?.isNaN ?? true) {
+      print('Error: [$this.scaleX] can not be NaN nor null');
+      return;
+    }
+    // if (value == null) throw 'scaleX can not be null';
     if (_scaleX == value) return;
     _scaleX = value;
     $setTransformationChanged();
   }
 
   set scaleY(double value) {
-    if (value == null) throw 'scaleY can not be null';
+    if (value?.isNaN ?? true) {
+      print('Error: [$this.scaleY] can not be NaN nor null');
+      return;
+    }
     if (_scaleY == value) return;
     _scaleY = value;
     $setTransformationChanged();
   }
 
   set pivotX(double value) {
+    if (value?.isNaN ?? true) {
+      print('Error: [$this.pivotX] can not be NaN nor null');
+      return;
+    }
     if (_pivotX == value) return;
     _pivotX = value ?? 0.0;
     $setTransformationChanged();
   }
 
   set pivotY(double value) {
+    if (value?.isNaN ?? true) {
+      print('Error: [$this.pivotY] can not be NaN nor null');
+      return;
+    }
     if (_pivotY == value) return;
     _pivotY = value ?? 0.0;
     $setTransformationChanged();
   }
 
   set skewX(double value) {
-    if (value == null) throw 'skewX can not be null';
+    if (value?.isNaN ?? true) {
+      print('Error: [$this.skewX] can not be NaN nor null');
+      return;
+    }
     if (_skewX == value) return;
     _skewX = value;
     $setTransformationChanged();
   }
 
   set skewY(double value) {
-    if (value == null) throw 'skewY can not be null';
+    if (value?.isNaN ?? true) {
+      print('Error: [$this.skewY] can not be NaN nor null');
+      return;
+    }
     if (_skewY == value) return;
     _skewY = value;
     $setTransformationChanged();
   }
 
   set rotation(double value) {
-    if (value == null) throw 'rotation can not be null';
+    if (value?.isNaN ?? true) {
+      print('Error: [$this.rotation] can not be NaN nor null');
+      return;
+    }
     if (_rotation == value) return;
     _rotation = value;
     $setTransformationChanged();
   }
 
   set rotationX(double value) {
-    if (value == null) {
-      throw 'rotationX can not be null';
+    if (value?.isNaN ?? true) {
+      print('Error: [$this.rotationX] can not be NaN nor null');
+      return;
     }
     if (_rotationX == value) return;
     _rotationX = value ?? 0.0;
@@ -425,8 +466,9 @@ abstract class GDisplayObject
   }
 
   set rotationY(double value) {
-    if (value == null) {
-      throw 'rotationY can not be null';
+    if (value?.isNaN ?? true) {
+      print('Error: [$this.rotationY] can not be NaN nor null');
+      return;
     }
     if (_rotationY == value) return;
     _rotationY = value ?? 0.0;
@@ -435,8 +477,9 @@ abstract class GDisplayObject
   }
 
   set z(double value) {
-    if (value == null) {
-      throw 'z can not be null';
+    if (value?.isNaN ?? true) {
+      print('Error: [$this.z] can not be NaN nor null');
+      return;
     }
     if (_z == value) return;
     _z = value ?? 0.0;
@@ -449,8 +492,9 @@ abstract class GDisplayObject
   double get alpha => $alpha;
 
   set alpha(double value) {
-    if (value == null) {
-      throw 'alpha can not be null';
+    if (value?.isNaN ?? true) {
+      print('Error: [$this.alpha] can not be NaN nor null');
+      return;
     }
     if ($alpha != value) {
       value ??= 1;
@@ -628,18 +672,16 @@ abstract class GDisplayObject
     }
   }
 
-  void $updateTransformationMatrices(
-    double x,
-    double y,
-    double pivotX,
-    double pivotY,
-    double scaleX,
-    double scaleY,
-    double skewX,
-    double skewY,
-    double rotation,
-    GMatrix out,
-  ) {
+  void $updateTransformationMatrices(double x,
+      double y,
+      double pivotX,
+      double pivotY,
+      double scaleX,
+      double scaleY,
+      double skewX,
+      double skewY,
+      double rotation,
+      GMatrix out,) {
     out.identity();
     if (skewX == 0 && skewY == 0) {
       /// optimization, no skewing.
@@ -728,8 +770,8 @@ abstract class GDisplayObject
     return out;
   }
 
-  static GDisplayObject _findCommonParent(
-      GDisplayObject obj1, GDisplayObject obj2) {
+  static GDisplayObject _findCommonParent(GDisplayObject obj1,
+      GDisplayObject obj2) {
     var current = obj1;
 
     /// TODO: use faster Hash access.
@@ -874,7 +916,7 @@ abstract class GDisplayObject
     }
     final _hasScale = _scaleX != 1 || _scaleY != 1;
     final _hasTranslate = _x != 0 || _y != 0;
-    final _hasPivot = _pivotX != 0 || _pivotX != 0;
+    final _hasPivot = _pivotX != 0 || _pivotY != 0;
     final _hasSkew = _skewX != 0 || _skewY != 0;
     final needSave = _hasTranslate ||
         _hasScale ||
@@ -983,7 +1025,8 @@ abstract class GDisplayObject
 
     if (_composerFilters != null) {
       for (var filter in _composerFilters) {
-        if (filter.hideObject) {
+        if (filter.hideObject ||
+            (filter is GDropShadowFilter && filter.innerShadow)) {
           filterHidesObject = true;
         }
         filter.process(canvas, $applyPaint);
@@ -1049,7 +1092,7 @@ abstract class GDisplayObject
     if (ancestor == this) {
       throw ArgumentError(
           'An object cannot be added as a child to itself or one '
-          'of its children (or children\'s children, etc.)');
+              'of its children (or children\'s children, etc.)');
     } else {
       $parent = value;
     }
@@ -1081,9 +1124,8 @@ abstract class GDisplayObject
   /// Beware to call this before applying any
   /// transformations (x, y, scale, etc) if you intend to use in it's "original"
   /// form.
-  ui.Picture createPicture(
-      [void Function(ui.Canvas) prePaintCallback,
-      void Function(ui.Canvas) postPaintCallback]) {
+  ui.Picture createPicture([void Function(ui.Canvas) prePaintCallback,
+    void Function(ui.Canvas) postPaintCallback]) {
     final r = ui.PictureRecorder();
     final c = ui.Canvas(r);
     prePaintCallback?.call(c);
