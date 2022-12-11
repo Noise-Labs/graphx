@@ -1,11 +1,9 @@
-import 'dart:ui';
-
 import 'package:graphx/graphx.dart';
 
 class PadPoint {
   double x, y;
-  int time;
-  PadPoint(this.x, this.y, [int time]) {
+  int? time;
+  PadPoint(this.x, this.y, [int? time]) {
     this.time = time ?? getTimer();
   }
 
@@ -15,7 +13,7 @@ class PadPoint {
   }
 
   double velocityForm(PadPoint start) =>
-      time != start.time ? distanceTo(start) / (time - start.time) : 0.0;
+      time != start.time ? distanceTo(start) / (time! - start.time!) : 0.0;
 
   PadPoint operator -(PadPoint other) => PadPoint(x - other.x, y - other.y);
   PadPoint operator +(PadPoint other) => PadPoint(x + other.x, y + other.y);
@@ -31,5 +29,5 @@ class PadPoint {
 
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
-  int get hashCode => hashValues(x, y, time);
+  int get hashCode => Object.hash(x, y, time);
 }

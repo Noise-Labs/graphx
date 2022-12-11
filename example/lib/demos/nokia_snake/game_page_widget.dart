@@ -9,18 +9,18 @@ import 'nokia_snake.dart';
 class GamePage extends StatefulWidget {
   final int speed;
 
-  const GamePage({Key key, @required this.speed}) : super(key: key);
+  const GamePage({Key? key, required this.speed}) : super(key: key);
 
   @override
   _GamePageState createState() => _GamePageState();
 }
 
 class _GamePageState extends State<GamePage> {
-  String scroreTF = 'SCORE: 0';
+  String scoreText = 'SCORE: 0';
 
   void updateScore(String score) {
     setState(() {
-      scroreTF = score;
+      scoreText = score;
     });
   }
 
@@ -38,14 +38,14 @@ class _GamePageState extends State<GamePage> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              scroreTF,
+              scoreText,
               style: TextStyle(
                 letterSpacing: 1,
                 fontSize: 10,
                 fontFamily: 'pressstart',
               ),
             ),
-            scroreTF == 'PAUSED'
+            scoreText == 'PAUSED'
                 ? IconButton(
                     icon: Icon(Icons.home),
                     onPressed: () => Navigator.of(context).pushReplacement(
@@ -58,25 +58,28 @@ class _GamePageState extends State<GamePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => mps.emit1('COMMAND', SnakeCommands.pause),
-        backgroundColor: Theme.of(context).accentColor.withOpacity(.4),
+        backgroundColor:
+            Theme.of(context).colorScheme.secondary.withOpacity(.4),
         elevation: 0,
         highlightElevation: 0,
         focusElevation: 0,
         hoverElevation: 0,
         disabledElevation: 0,
         child: Icon(
-          scroreTF == 'PAUSED' ? Icons.play_arrow : Icons.pause,
+          scoreText == 'PAUSED' ? Icons.play_arrow : Icons.pause,
           color: Colors.white,
         ),
       ),
       body: Stack(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: SceneBuilderWidget(
-              builder: () => SceneController(
-                config: SceneConfig.games,
-                back: SnakeGameScene(widget.speed),
+          Positioned.fill(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: SceneBuilderWidget(
+                builder: () => SceneController(
+                  config: SceneConfig.games,
+                  back: SnakeGameScene(widget.speed),
+                ),
               ),
             ),
           ),

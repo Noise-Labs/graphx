@@ -1,10 +1,7 @@
 import 'dart:collection';
 import 'dart:ui';
 
-import 'package:flutter/foundation.dart';
-
 import '../../graphx.dart';
-import 'signal.dart';
 
 mixin EventDispatcherMixin implements Listenable {
   final _updaters = HashSet<VoidCallback>();
@@ -27,7 +24,7 @@ mixin EventDispatcherMixin implements Listenable {
 }
 
 mixin TickerSignalMixin {
-  EventSignal<double> $onEnterFrame;
+  EventSignal<double>? $onEnterFrame;
 
   EventSignal<double> get onEnterFrame =>
       $onEnterFrame ??= EventSignal<double>();
@@ -39,7 +36,8 @@ mixin TickerSignalMixin {
 }
 
 mixin ResizeSignalMixin {
-  Signal $onResized;
+  Signal? $onResized;
+
   Signal get onResized => $onResized ??= Signal();
 
   void $disposeResizeSignals() {
@@ -49,19 +47,19 @@ mixin ResizeSignalMixin {
 }
 
 mixin DisplayListSignalsMixin {
-  Signal $onAdded;
+  Signal? $onAdded;
 
   Signal get onAdded => $onAdded ??= Signal();
 
-  Signal $onRemoved;
+  Signal? $onRemoved;
 
   Signal get onRemoved => $onRemoved ??= Signal();
 
-  Signal $onRemovedFromStage;
+  Signal? $onRemovedFromStage;
 
   Signal get onRemovedFromStage => $onRemovedFromStage ??= Signal();
 
-  Signal $onAddedToStage;
+  Signal? $onAddedToStage;
 
   Signal get onAddedToStage => $onAddedToStage ??= Signal();
 
@@ -78,8 +76,9 @@ mixin DisplayListSignalsMixin {
 }
 
 mixin RenderSignalMixin {
-  EventSignal<Canvas> $onPrePaint;
-  EventSignal<Canvas> $onPostPaint;
+  EventSignal<Canvas>? $onPrePaint;
+  EventSignal<Canvas>? $onPostPaint;
+
 //  EventSignal<Canvas> $onPaint;
 
   EventSignal<Canvas> get onPrePaint => $onPrePaint ??= EventSignal<Canvas>();
@@ -100,10 +99,11 @@ mixin RenderSignalMixin {
 
 /// use mouse signal for now.
 mixin StageMouseSignalsMixin<T extends MouseInputData> {
-  EventSignal<T> $onMouseLeave;
-  EventSignal<T> $onMouseEnter;
+  EventSignal<T>? $onMouseLeave;
+  EventSignal<T>? $onMouseEnter;
 
   EventSignal<T> get onMouseLeave => $onMouseLeave ??= EventSignal();
+
   EventSignal<T> get onMouseEnter => $onMouseEnter ??= EventSignal();
 
   void $disposeStagePointerSignals() {
@@ -116,33 +116,40 @@ mixin StageMouseSignalsMixin<T extends MouseInputData> {
 
 /// use mouse signal for now.
 mixin MouseSignalsMixin<T extends MouseInputData> {
-  EventSignal<T> $onRightMouseDown;
-  EventSignal<T> $onMouseDoubleClick;
-  EventSignal<T> $onMouseClick;
-  EventSignal<T> $onMouseDown;
-  EventSignal<T> $onMouseUp;
-  EventSignal<T> $onMouseMove;
-  EventSignal<T> $onMouseOut;
-  EventSignal<T> $onMouseOver;
-  EventSignal<T> $onMouseWheel;
-  EventSignal<T> $onLongPress;
+  EventSignal<T>? $onRightMouseDown;
+  EventSignal<T>? $onMouseDoubleClick;
+  EventSignal<T>? $onMouseClick;
+  EventSignal<T>? $onMouseDown;
+  EventSignal<T>? $onMouseUp;
+  EventSignal<T>? $onMouseMove;
+  EventSignal<T>? $onMouseOut;
+  EventSignal<T>? $onMouseOver;
+  EventSignal<T>? $onMouseWheel;
+  EventSignal<T>? $onZoomPan;
 
   EventSignal<T> get onMouseClick => $onMouseClick ??= EventSignal();
+
   EventSignal<T> get onMouseDoubleClick =>
       $onMouseDoubleClick ??= EventSignal();
+
   EventSignal<T> get onRightMouseDown => $onRightMouseDown ??= EventSignal();
+
   EventSignal<T> get onMouseDown => $onMouseDown ??= EventSignal();
+
   EventSignal<T> get onMouseUp => $onMouseUp ??= EventSignal();
+
   EventSignal<T> get onMouseMove => $onMouseMove ??= EventSignal();
+
   EventSignal<T> get onMouseOver => $onMouseOver ??= EventSignal();
+
   EventSignal<T> get onMouseOut => $onMouseOut ??= EventSignal();
+
   EventSignal<T> get onMouseScroll => $onMouseWheel ??= EventSignal();
 
-  EventSignal<T> onLongPress([Duration duration =
-  const Duration(milliseconds: 600),double distance = 1]) {
-    $onLongPress = EventSignal<T>.longPress(duration,distance);
-    return $onLongPress;
-  }
+  // Available since Flutter 3.x I guess?
+  // Use this event in favor of onMouseScroll on desktop.
+  // Might change in the future.
+  EventSignal<T> get onZoomPan => $onZoomPan ??= EventSignal();
 
   void $disposePointerSignals() {
     $onRightMouseDown?.removeAll();
@@ -163,25 +170,33 @@ mixin MouseSignalsMixin<T extends MouseInputData> {
     $onMouseOut = null;
     $onMouseWheel?.removeAll();
     $onMouseWheel = null;
-    $onLongPress?.removeAll();
-    $onLongPress = null;
+    $onZoomPan?.removeAll();
+    $onZoomPan = null;
   }
 }
 
 mixin PointerSignalsMixin<T extends PointerEventData> {
-  EventSignal<T> $onClick;
-  EventSignal<T> $onDown;
-  EventSignal<T> $onUp;
-  EventSignal<T> $onHover;
-  EventSignal<T> $onOut;
-  EventSignal<T> $onScroll;
+  EventSignal<T>? $onClick;
+  EventSignal<T>? $onDown;
+  EventSignal<T>? $onUp;
+  EventSignal<T>? $onHover;
+  EventSignal<T>? $onOut;
+  EventSignal<T>? $onScroll;
+  EventSignal<T>? $onZoomPan;
 
   EventSignal<T> get onClick => $onClick ??= EventSignal();
+
   EventSignal<T> get onDown => $onDown ??= EventSignal();
+
   EventSignal<T> get onUp => $onUp ??= EventSignal();
+
   EventSignal<T> get onHover => $onHover ??= EventSignal();
+
   EventSignal<T> get onOut => $onOut ??= EventSignal();
+
   EventSignal<T> get onScroll => $onScroll ??= EventSignal();
+
+  EventSignal<T> get onZoomPan => $onZoomPan ??= EventSignal();
 
   void $disposePointerSignals() {
     $onClick?.removeAll();
@@ -196,5 +211,7 @@ mixin PointerSignalsMixin<T extends PointerEventData> {
     $onOut = null;
     $onScroll?.removeAll();
     $onScroll = null;
+    $onZoomPan?.removeAll();
+    $onZoomPan = null;
   }
 }

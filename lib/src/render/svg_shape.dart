@@ -1,13 +1,12 @@
 import 'dart:ui';
 
 import '../../graphx.dart';
-import '../utils/utils.dart';
 
 class GSvgShape extends GDisplayObject {
   static final GMatrix _sHelperMatrix = GMatrix();
   static final GPoint _sHelperPoint = GPoint();
 
-  Color _tint;
+  Color? _tint;
 
   /// play nice with Colorization.
   BlendMode _blendMode = BlendMode.srcATop;
@@ -16,9 +15,9 @@ class GSvgShape extends GDisplayObject {
 
   bool _invalidColor = false;
 
-  Color get tint => _tint;
+  Color? get tint => _tint;
 
-  set tint(Color value) {
+  set tint(Color? value) {
     _tint = value;
     _invalidColor = true;
     usePaint = true;
@@ -41,18 +40,18 @@ class GSvgShape extends GDisplayObject {
   }
 
   bool _isValid = false;
-  SvgData _data;
+  SvgData? _data;
 
-  SvgData get data => _data;
+  SvgData? get data => _data;
 
-  set data(SvgData value) {
+  set data(SvgData? value) {
     if (_data == value) return;
     _data = value;
     _isValid = _data?.hasContent ?? false;
     requiresRedraw();
   }
 
-  GSvgShape(SvgData data) {
+  GSvgShape(SvgData? data) {
     this.data = data;
   }
 
@@ -66,12 +65,12 @@ class GSvgShape extends GDisplayObject {
   }
 
   @override
-  GRect getBounds(GDisplayObject targetSpace, [GRect out]) {
+  GRect? getBounds(GDisplayObject? targetSpace, [GRect? out]) {
     final matrix = _sHelperMatrix;
     matrix.identity();
     getTransformationMatrix(targetSpace, matrix);
     if (_isValid) {
-      var r = _data.size;
+      var r = _data!.size;
       out = MatrixUtils.getTransformedBoundsRect(
         matrix,
         r,
@@ -79,7 +78,7 @@ class GSvgShape extends GDisplayObject {
       );
     } else {
       matrix.transformCoords(0, 0, _sHelperPoint);
-      out.setTo(_sHelperPoint.x, _sHelperPoint.y, 0, 0);
+      out!.setTo(_sHelperPoint.x, _sHelperPoint.y, 0, 0);
     }
     return out;
   }
@@ -102,32 +101,32 @@ class GSvgShape extends GDisplayObject {
   }
 
   @override
-  void $applyPaint(Canvas canvas) {
-    var _saveLayer = $alpha != 1 || usePaint;
-    if (_saveLayer) {
+  void $applyPaint(Canvas? canvas) {
+    var doSaveLayer = $alpha != 1 || usePaint;
+    if (doSaveLayer) {
       if (_invalidColor) _validateColor();
-      final rect = getBounds(this).toNative();
-      canvas.saveLayer(rect, _paint);
+      final rect = getBounds(this)!.toNative();
+      canvas!.saveLayer(rect, _paint);
     }
-    canvas.drawPicture(_data.picture);
-    if (_saveLayer) {
+    canvas!.drawPicture(_data!.picture!);
+    if (doSaveLayer) {
       canvas.restore();
     }
   }
 
   void _validateColor() {
-    _paint.colorFilter = ColorFilter.mode(_tint, _blendMode);
+    _paint.colorFilter = ColorFilter.mode(_tint!, _blendMode);
     _invalidColor = false;
   }
 }
 
 /// proxy class to flutter_svg
 class SvgData {
-  Color color;
-  GRect viewBox;
-  GRect size;
-  Picture picture;
-  bool hasContent;
+  Color? color;
+  GRect? viewBox;
+  late GRect size;
+  Picture? picture;
+  bool? hasContent;
 
   SvgData([this.picture]);
 

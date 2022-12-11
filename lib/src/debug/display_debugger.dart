@@ -1,6 +1,7 @@
 import 'dart:ui' as ui;
 
 import '../../graphx.dart';
+
 enum DebugBoundsMode {
   /// renders the bounding box transformed, inside the current object [paint()]
   /// method process.
@@ -30,7 +31,7 @@ class DisplayBoundsDebugger {
     ..strokeWidth = 1;
 
   final GDisplayObjectContainer _root;
-  ui.Canvas canvas;
+  ui.Canvas? canvas;
   static final GRect _sHelpRect = GRect();
 
   DisplayBoundsDebugger(GDisplayObjectContainer root) : _root = root;
@@ -55,12 +56,12 @@ class DisplayBoundsDebugger {
 
   void _renderBounds(GDisplayObject obj) {
     obj.getBounds(_root, _sHelpRect);
-    final _paint = obj.$debugBoundsPaint ?? _debugPaint;
-    final linePaint = _paint.clone();
+    final paint = obj.$debugBoundsPaint ?? _debugPaint;
+    final linePaint = paint.clone();
     linePaint.color = linePaint.color.withOpacity(.3);
     final rect = _sHelpRect.toNative();
-    canvas.drawLine(rect.topLeft, rect.bottomRight, linePaint);
-    canvas.drawLine(rect.topRight, rect.bottomLeft, linePaint);
-    canvas.drawRect(rect, _paint);
+    canvas!.drawLine(rect.topLeft, rect.bottomRight, linePaint);
+    canvas!.drawLine(rect.topRight, rect.bottomLeft, linePaint);
+    canvas!.drawRect(rect, paint);
   }
 }

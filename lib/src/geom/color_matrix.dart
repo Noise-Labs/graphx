@@ -12,7 +12,7 @@ import 'dart:math' as math;
 /// Paint()..colorFilter = ColorFilter.matrix( colorMatrix.storage );
 /// ```
 class ColorMatrix {
-  static const List<double> DELTA_INDEX = <double>[
+  static const List<double> kDeltaIndex = <double>[
     //
     0, 0.01, 0.02, 0.04, 0.05, 0.06, 0.07, 0.08, 0.1, 0.11,
     //
@@ -36,7 +36,7 @@ class ColorMatrix {
     //
     10.0
   ];
-  static const List<double> IDENTITY_MATRIX = <double>[
+  static const List<double> kIdentityMatrix = <double>[
     1, 0, 0, 0, 0,
     //
     0, 1, 0, 0, 0,
@@ -49,18 +49,18 @@ class ColorMatrix {
   ];
 
   // ignore: non_constant_identifier_names
-  static final int LENGTH = IDENTITY_MATRIX.length;
-  final _storage = List<double>(25);
+  static final int LENGTH = kIdentityMatrix.length;
+  final _storage = List<double>.filled(25, 0);
 
-  ColorMatrix([List<double> matrix]) {
+  ColorMatrix([List<double> matrix = kIdentityMatrix]) {
     matrix = _fixMatrix(matrix);
-    copyMatrix(((matrix.length == LENGTH) ? matrix : IDENTITY_MATRIX));
+    copyMatrix(((matrix.length == LENGTH) ? matrix : kIdentityMatrix));
   }
 
   // public methods:
   void reset() {
     for (var i = 0; i < LENGTH; i++) {
-      _storage[i] = IDENTITY_MATRIX[i];
+      _storage[i] = kIdentityMatrix[i];
     }
   }
 
@@ -77,7 +77,7 @@ class ColorMatrix {
   }
 
   void adjustBrightness(double percent) {
-    if (percent == null || percent == 0 || percent.isNaN) return;
+    if (percent == 0 || percent.isNaN) return;
     if (percent >= -1 && percent <= 1) {
       percent *= 100;
     }
@@ -96,7 +96,7 @@ class ColorMatrix {
   }
 
   void adjustContrast(double percent) {
-    if (percent == null || percent == 0 || percent.isNaN) return;
+    if (percent == 0 || percent.isNaN) return;
     if (percent >= -1 && percent <= 1) {
       percent *= 100;
     }
@@ -108,11 +108,11 @@ class ColorMatrix {
     } else {
       x = percent % 1;
       if (x == 0) {
-        x = DELTA_INDEX[idx];
+        x = kDeltaIndex[idx];
       } else {
         //x = DELTA_INDEX[(p_val<<0)]; // this is how the IDE does it.
-        x = DELTA_INDEX[(idx << 0)] * (1 - x) +
-            DELTA_INDEX[(idx << 0) + 1] *
+        x = kDeltaIndex[(idx << 0)] * (1 - x) +
+            kDeltaIndex[(idx << 0) + 1] *
                 x; // use linear interpolation for more granularity.
       }
       x = x * 127 + 127;
@@ -132,7 +132,7 @@ class ColorMatrix {
   }
 
   void adjustSaturation(double percent) {
-    if (percent == null || percent == 0 || percent.isNaN) return;
+    if (percent == 0 || percent.isNaN) return;
     if (percent >= -1 && percent <= 1) {
       percent *= 100;
     }
@@ -156,7 +156,7 @@ class ColorMatrix {
   }
 
   void adjustHue(double percent) {
-    if (percent == null || percent == 0 || percent.isNaN) return;
+    if (percent == 0 || percent.isNaN) return;
     if (percent >= -1 && percent <= 1) {
       percent *= 180;
     }
@@ -204,7 +204,7 @@ class ColorMatrix {
   String toString() => "ColorMatrix [ ${_storage.join(" , ")} ]";
 
   /// return a length 20 array (5x4):
-  List<double> get storage =>
+  List<double?> get storage =>
       _storage.sublist(0, math.min(_storage.length, 20)).toList();
 
   /// private methods:
@@ -217,7 +217,7 @@ class ColorMatrix {
 
   /// multiplies one matrix against another:
   void multiplyMatrix(List<double> pMatrix) {
-    var col = List<double>(25);
+    var col = List<double>.filled(25, 0);
 
     for (var i = 0; i < 5; i++) {
       for (var j = 0; j < 5; j++) {
@@ -238,12 +238,11 @@ class ColorMatrix {
   double _cleanValue(double pVal, double pLimit) =>
       math.min(pLimit, math.max(-pLimit, pVal));
 
-  /// makes sure matrixes are 5x5 (25 long):
-  List<double> _fixMatrix([List<double> pMatrix]) {
-    if (pMatrix == null) return IDENTITY_MATRIX;
+  /// makes sure Matrices are 5x5 (25 long):
+  List<double> _fixMatrix(List<double> pMatrix) {
     if (pMatrix.length < LENGTH) {
       pMatrix = List.from(pMatrix)
-        ..addAll(IDENTITY_MATRIX.getRange(pMatrix.length, LENGTH));
+        ..addAll(kIdentityMatrix.getRange(pMatrix.length, LENGTH));
     } else if (pMatrix.length > LENGTH) {
       pMatrix = pMatrix.sublist(0, LENGTH);
     }

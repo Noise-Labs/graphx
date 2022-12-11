@@ -1,16 +1,11 @@
 import 'package:flutter/gestures.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
-import '../events/keyboard_data.dart';
-import '../events/pointer_data.dart';
-import 'keyboard_manager.dart';
-import 'pointer_manager.dart';
+import '../../graphx.dart';
 
 class InputConverter {
   final PointerManager pointer;
   final KeyboardManager keyboard;
-
   InputConverter(this.pointer, this.keyboard);
 
   /// mouse stuffs.
@@ -36,11 +31,31 @@ class InputConverter {
   }
 
   /// touchable stuffs.
-
   void pointerSignal(PointerSignalEvent event) {
     pointer.$process(PointerEventData(
       type: PointerEventType.scroll,
       rawEvent: event as PointerScrollEvent,
+    ));
+  }
+
+  void pointerPanZoomStart(PointerPanZoomStartEvent event) {
+    pointer.$process(PointerEventData(
+      type: PointerEventType.zoomPan,
+      rawEvent: event,
+    ));
+  }
+
+  void pointerPanZoomUpdate(PointerPanZoomUpdateEvent event) {
+    pointer.$process(PointerEventData(
+      type: PointerEventType.zoomPan,
+      rawEvent: event,
+    ));
+  }
+
+  void pointerPanZoomEnd(PointerPanZoomEndEvent event) {
+    pointer.$process(PointerEventData(
+      type: PointerEventType.zoomPan,
+      rawEvent: event,
     ));
   }
 

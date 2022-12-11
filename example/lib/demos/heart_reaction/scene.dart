@@ -1,27 +1,35 @@
 import 'package:graphx/graphx.dart';
 
-import '../../utils/svg_utils.dart';
 import '../../utils/utils.dart';
 import 'assets.dart';
 
 class HeartScene extends GSprite {
-  HeartScene({this.key});
-
-  double get h => stage.stageHeight;
-
-  double get w => stage.stageWidth;
-  SvgData svg;
   final GlobalKey key;
+  final ValueNotifier<bool> onLiked;
+
+  HeartScene({
+    required this.key,
+    required this.onLiked,
+  });
+
+  double get h => stage!.stageHeight;
+
+  double get w => stage!.stageWidth;
+  SvgData? svg;
 
   @override
   Future<void> addedToStage() async {
     await loadSvg();
-    mps.on('like', _heartRain);
+    onLiked.addListener(() {
+      if (onLiked.value) _heartRain();
+    });
+    // mps.on('like', _heartRain);
     super.addedToStage();
   }
 
   void _heartRain() {
-    final _grect = ContextUtils.getRenderObjectBounds(key.currentContext);
+    if (key.currentContext == null) return;
+    final _grect = ContextUtils.getRenderObjectBounds(key.currentContext!)!;
     var isUp = _grect.y < h / 2;
     var maxDuration = 0.0;
     List.generate(
@@ -64,7 +72,8 @@ class HeartScene extends GSprite {
       },
     );
     GTween.delayedCall(maxDuration, () {
-      mps.emit('animfinish');
+      onLiked.value = false;
+      // mps.emit('animfinish');
     });
   }
 

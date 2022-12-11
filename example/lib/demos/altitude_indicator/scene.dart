@@ -8,7 +8,6 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:graphx/graphx.dart';
 
 class AltitudIndicatorScene extends GSprite {
@@ -16,17 +15,17 @@ class AltitudIndicatorScene extends GSprite {
 
   /// inner circle.
   GSprite rotatorCircle = GSprite();
-  GSprite movable;
+  GSprite? movable;
 
   double innerCircSeparation = 50.0;
   double outlineThickness1 = 18.0;
   double outlineThickness2 = 10.0;
-  double meterSize;
+  late double meterSize;
   final redColor = const Color(0xffDA5537);
   double valueMeterGap = 34.0;
-  double innerCircleSize;
+  late double innerCircleSize;
 
-  double get minStageSize => Math.min(stage.stageWidth, stage.stageHeight);
+  double get minStageSize => Math.min(stage!.stageWidth, stage!.stageHeight);
 
   @override
   void addedToStage() {
@@ -37,29 +36,25 @@ class AltitudIndicatorScene extends GSprite {
 
     var mainMask = GShape();
     var radius = meterSize / 2;
-    mainMask.graphics
-        .beginFill(Colors.red.withOpacity(.3))
-        .drawCircle(0, 0, radius)
-        .endFill();
+    mainMask.graphics.beginFill(Colors.red.withOpacity(.3)).drawCircle(0, 0, radius).endFill();
     addChild(mainMask);
     mainContainer.mask = mainMask;
+
     /// center pivot in the current bounding box of scene.
     alignPivot();
 
-    stage.onResized.add(() {
+    stage!.onResized.add(() {
       /// position the scene in the middle of screen.
-      setPosition(stage.stageWidth / 2, stage.stageHeight / 2);
+      setPosition(stage!.stageWidth / 2, stage!.stageHeight / 2);
+
       /// scale % accordingly.
       scale = minStageSize / meterSize;
     });
   }
 
   Future<void> drawInnerCircle() async {
-    innerCircleSize = meterSize -
-        outlineThickness1 * 2 -
-        outlineThickness2 * 2 +
-        4 -
-        innerCircSeparation * 2;
+    innerCircleSize =
+        meterSize - outlineThickness1 * 2 - outlineThickness2 * 2 + 4 - innerCircSeparation * 2;
 
     var maskCircle = GShape()
       ..graphics
@@ -85,10 +80,10 @@ class AltitudIndicatorScene extends GSprite {
     createOutsideLines();
 
     /// create some movement for the airplane!
-    stage.onEnterFrame.add(onEnterFrame);
+    stage!.onEnterFrame.add(onEnterFrame);
   }
 
-  bool isPressed(LogicalKeyboardKey key) => stage.keyboard.isPressed(key);
+  bool isPressed(LogicalKeyboardKey key) => stage!.keyboard!.isPressed(key);
 
   int getDirY() {
     if (isPressed(LogicalKeyboardKey.arrowDown)) {
@@ -113,9 +108,9 @@ class AltitudIndicatorScene extends GSprite {
     var dirX = getDirX();
 
     if (dirY != 0) {
-      movable.y += 1.2 * dirY;
+      movable!.y += 1.2 * dirY;
     } else {
-      movable.y += (-movable.y) / 20;
+      movable!.y += (-movable!.y) / 20;
     }
 
     if (dirX != 0) {
@@ -126,16 +121,16 @@ class AltitudIndicatorScene extends GSprite {
     }
 
     var maxRangeY = valueMeterGap * 2;
-    if (movable.y > maxRangeY) {
-      movable.y = maxRangeY;
-    } else if (movable.y < -maxRangeY) {
-      movable.y = -maxRangeY;
+    if (movable!.y > maxRangeY) {
+      movable!.y = maxRangeY;
+    } else if (movable!.y < -maxRangeY) {
+      movable!.y = -maxRangeY;
     }
 
 //    rotatorCircle.rotation += .01;
   }
 
-  GSprite drawRotator() {
+  GSprite? drawRotator() {
     /// background first.
     movable = GSprite();
 
@@ -150,9 +145,9 @@ class AltitudIndicatorScene extends GSprite {
     ground.alignPivot(Alignment.topCenter);
     line.alignPivot(Alignment.center);
 
-    movable.addChild(sky);
-    movable.addChild(ground);
-    movable.addChild(line);
+    movable!.addChild(sky);
+    movable!.addChild(ground);
+    movable!.addChild(line);
 
     /// another option to draw background.
 //    var rotatorBackground = GShape();
@@ -173,12 +168,12 @@ class AltitudIndicatorScene extends GSprite {
 //    movable.addChild(rotatorBackground);
 
     var elements = buildRotatorElements();
-    movable.addChild(elements);
-    rotatorCircle.addChild(movable);
+    movable!.addChild(elements);
+    rotatorCircle.addChild(movable!);
 
     /// the red arrow should always stay in the same position...
     /// re-parent the element to the rotator circle.
-    var arrow = elements.getChildByName('arrow');
+    var arrow = elements.getChildByName('arrow')!;
     rotatorCircle.addChild(arrow);
     return movable;
   }
@@ -238,10 +233,7 @@ class AltitudIndicatorScene extends GSprite {
       }
 
       final underlineW = 28.0;
-      spr.graphics
-          .moveTo(-underlineW / 2, underlineY)
-          .lineTo(underlineW / 2, underlineY)
-          .endFill();
+      spr.graphics.moveTo(-underlineW / 2, underlineY).lineTo(underlineW / 2, underlineY).endFill();
 
       spr.addChild(tf1);
       spr.addChild(tf2);
@@ -299,9 +291,7 @@ class AltitudIndicatorScene extends GSprite {
 
     /// draw the floor.
     var skyFloor = GShape();
-    skyFloor.graphics
-        .beginFill(Color(0xff5ABAEC))
-        .drawRect(0, 0, meterSize, meterSize / 2);
+    skyFloor.graphics.beginFill(Color(0xff5ABAEC)).drawRect(0, 0, meterSize, meterSize / 2);
     skyFloor.graphics
         .beginFill(Color(0xff5E5351))
         .drawRect(0, meterSize / 2, meterSize, meterSize / 2);
@@ -329,7 +319,7 @@ class AltitudIndicatorScene extends GSprite {
 
     GShape _buildLine({
       double thickness = 3.0,
-      double rotationDegrees,
+      required double rotationDegrees,
     }) {
       var line = GShape();
       line.graphics.lineStyle(thickness, kColorWhite);
@@ -337,7 +327,7 @@ class AltitudIndicatorScene extends GSprite {
       line.graphics.lineTo((innerCircleSize + innerCircSeparation) / 2, 0);
       line.pivotX = line.width;
       line.rotation = deg2rad(rotationDegrees);
-      linesContainer?.addChild(line);
+      linesContainer.addChild(line);
       return line;
     }
 
@@ -367,8 +357,7 @@ class AltitudIndicatorScene extends GSprite {
   }
 
   GShape buildBox(Color color, double width, double height) {
-    return GShape()
-      ..graphics.beginFill(color).drawRect(0, 0, width, height).endFill();
+    return GShape()..graphics.beginFill(color).drawRect(0, 0, width, height).endFill();
   }
 
   GDisplayObject buildArrow({

@@ -7,7 +7,7 @@ import 'package:graphx/graphx.dart';
 
 import 'scene.dart';
 
-class RasterDrawMain extends StatelessWidget {
+class RasterDrawingMain extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -16,6 +16,7 @@ class RasterDrawMain extends StatelessWidget {
         padding: const EdgeInsets.all(12.0),
         child: SceneBuilderWidget(
           builder: () => SceneController(back: DrawingScene()),
+          autoSize: true,
         ),
       ),
     );

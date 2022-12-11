@@ -2,15 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:graphx/graphx.dart';
 
 import '../../assets/svg_icons.dart';
-import '../../utils/svg_utils.dart';
 
 class TestSvgScene extends GSprite {
   final groundHeight = 100.0;
-  GSprite trees, ground;
+  late GSprite trees, ground;
 
   @override
   void addedToStage() {
-    stage.color = Colors.lightBlueAccent.shade100;
+    stage!.color = Colors.lightBlueAccent.shade100;
     _init();
   }
 
@@ -18,13 +17,11 @@ class TestSvgScene extends GSprite {
     await _loadData();
     _drawSun();
 
-    trees = GSprite();
-    ground = GSprite();
-    addChild(trees);
-    addChild(ground);
+    trees = addChild(GSprite());
+    ground = addChild(GSprite());
 
-    trees.y = stage.stageHeight - groundHeight;
-    ground.y = stage.stageHeight - groundHeight;
+    trees.y = stage!.stageHeight - groundHeight;
+    ground.y = stage!.stageHeight - groundHeight;
 
     _drawTrees();
     _drawGround();
@@ -35,9 +32,9 @@ class TestSvgScene extends GSprite {
     // add the sun.
     var sun = getSvgIcon(SvgId.cloudy);
     sun.alignPivot();
-    sun.width = stage.stageWidth / 2;
+    sun.width = stage!.stageWidth / 2;
     sun.scaleY = sun.scaleX;
-    sun.setPosition(stage.stageWidth / 2, sun.height / 2);
+    sun.setPosition(stage!.stageWidth / 2, sun.height / 2);
     addChild(sun);
   }
 
@@ -46,11 +43,10 @@ class TestSvgScene extends GSprite {
     var currentObjectX = 30.0;
     for (var i = 0; i < 15; ++i) {
       final treeId = i.isOdd ? SvgId.tree : SvgId.pine;
-      var tree = getSvgIcon(treeId);
+      var tree = trees.addChild(getSvgIcon(treeId));
       tree.alignPivot(Alignment.bottomCenter);
       tree.x = currentObjectX;
       tree.scale = Math.randomRange(.4, 1.4);
-      trees.addChild(tree);
       currentObjectX += Math.randomRange(20, 80);
 
       /// let's skew the tree so it seems the wind is moving it.
@@ -77,7 +73,7 @@ class TestSvgScene extends GSprite {
 //        .beginFill(0xFFE477)
 //        .beginFill(0xFCF2B6)
         .beginFill(Colors.green)
-        .drawRect(0, 0, stage.stageWidth, groundHeight)
+        .drawRect(0, 0, stage!.stageWidth, groundHeight)
         .endFill();
 
     /// add some ground objects.
@@ -86,7 +82,7 @@ class TestSvgScene extends GSprite {
       var obj = getSvgIcon(objectId);
       obj.alignPivot(Alignment.bottomCenter);
       obj.y = Math.randomRange(20, groundHeight);
-      obj.x = Math.randomRange(20, stage.stageWidth - 20);
+      obj.x = Math.randomRange(20, stage!.stageWidth - 20);
       obj.scale = Math.randomRange(.8, 1.5);
       if (objectId == SvgId.snail) {
         /// DisplayObjects has a userData property so u can save custom stuffs
@@ -109,7 +105,7 @@ class TestSvgScene extends GSprite {
 
     /// if the snail is outside the stage area... move it to the
     /// other side of the screen.
-    if (snail.x > stage.stageWidth) {
+    if (snail.x > stage!.stageWidth) {
       snail.x = -100;
     }
 
@@ -120,7 +116,7 @@ class TestSvgScene extends GSprite {
       onComplete: () => _tweenSnail(snail),
     );
 
-    double originalScale = snail.userData;
+    double originalScale = snail.userData as double;
 
     /// scale down 80%
     snail.tween(
@@ -141,10 +137,9 @@ class TestSvgScene extends GSprite {
     for (var i = 0; i < 100; ++i) {
       final leafId = i.isOdd ? SvgId.leaf : SvgId.leaf2;
       var leaf = getSvgIcon(leafId);
-
       addChild(leaf);
 
-      var px = Math.randomRange(10, stage.stageWidth - 10);
+      var px = Math.randomRange(10, stage!.stageWidth - 10);
       leaf.setPosition(px, -10);
       final rndPivot =
           Math.randomBool() ? Alignment.bottomCenter : Alignment.topCenter;
@@ -167,7 +162,7 @@ class TestSvgScene extends GSprite {
     }
   }
 
-  void _tweenLeaf({int dir, GDisplayObject leaf}) {
+  void _tweenLeaf({required int dir, required GDisplayObject leaf}) {
     final randomRotation = Math.randomRange(10, 45.0) * dir;
     final randomDuration = Math.randomRange(.75, 1);
     final randomSkew = Math.randomRange(.1, .3) * -dir;
@@ -177,7 +172,11 @@ class TestSvgScene extends GSprite {
       skewX: randomSkew,
       skewY: -randomSkew / 2,
       onComplete: () {
-        if (leaf.y > stage.stageHeight) {
+        if(!leaf.inStage){
+          leaf.removeFromParent(true);
+          return;
+        }
+        if (leaf.y > stage!.stageHeight) {
           print('Leaf outside of stage, remove and dispose it.');
           leaf.removeFromParent(true);
         } else {
@@ -189,10 +188,13 @@ class TestSvgScene extends GSprite {
     final randomX = Math.randomRange(5, 40) * dir;
     final randomY = Math.randomRange(5, 30);
     leaf.tween(
-        duration: randomDuration * .9,
-        x: '$randomX',
-        y: '$randomY',
-        ease: GEase.linear);
+      duration: randomDuration * .8,
+      x: '$randomX',
+      y: '$randomY',
+      ease: GEase.easeOut,
+      /// import to not kill previous tween.
+      overwrite: 0,
+    );
   }
 
   /// utils for parsing SVG.

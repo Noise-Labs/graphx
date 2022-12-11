@@ -13,11 +13,14 @@ class PageIndicatorMain extends StatelessWidget {
         child: Container(
           width: 100,
           height: 20,
+          padding: EdgeInsets.all(4),
+          color: Colors.grey.shade200,
           child: SceneBuilderWidget(
             builder: () => SceneController(
               front: PageIndicatorPaged(),
               config: SceneConfig.games,
             ),
+            autoSize: true,
           ),
         ),
       );
@@ -37,7 +40,7 @@ class PageIndicatorMain extends StatelessWidget {
     return Scaffold(
         appBar: AppBar(
           centerTitle: false,
-          title: Text('page indicator'),
+          title: Text('page indicator (use keyboard Tab+arrows to move pages)'),
           elevation: 0,
           backgroundColor: Colors.black26,
         ),

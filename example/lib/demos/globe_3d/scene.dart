@@ -1,13 +1,11 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:graphx/graphx.dart';
 
 class Globe3dScene extends GSprite {
-  List<double> vertices;
-  List<double> uvData;
-  List<int> indices;
-  GSprite world;
+  late List<double> vertices;
+  late List<double> uvData;
+  late List<int> indices;
+  late GSprite world;
   double centerZ = 500;
   int cols = 20, rows = 20;
   double fl = 1000;
@@ -22,8 +20,7 @@ class Globe3dScene extends GSprite {
   }
 
   Future<void> loadStuff() async {
-    await ResourceLoader.loadTexture(
-        'assets/globe_3d/world_texture.jpg', 1, 'map');
+    await ResourceLoader.loadTexture('assets/globe_3d/world_texture.jpg', 1, 'map');
     trace('map is:', ResourceLoader.getTexture('map'));
     makeTriangles();
     draw();
@@ -72,6 +69,7 @@ class Globe3dScene extends GSprite {
     }
     world.graphics.clear();
     world.graphics.beginFill(Colors.black38);
+
     /// TODO: fix issues with z ordering.
     // world.graphics.beginBitmapFill(texture);
     world.graphics.lineStyle(0, Color(0xffff00ff));
@@ -88,7 +86,7 @@ class Globe3dScene extends GSprite {
   @override
   void update(double delta) {
     super.update(delta);
-    world.setPosition(stage.stageWidth / 2, stage.stageHeight / 2);
+    world.setPosition(stage!.stageWidth / 2, stage!.stageHeight / 2);
     draw();
   }
 }

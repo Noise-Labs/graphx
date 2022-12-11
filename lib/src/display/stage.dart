@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:ui' as ui;
 
 import '../../graphx.dart';
-import '../events/mixins.dart';
 
 /// The Stage class represents the main drawing area.
 /// The Stage represents the entire area where a GraphX `ScenePainter` content
@@ -32,14 +31,18 @@ class Stage extends GDisplayObjectContainer
 
   bool maskBounds = false;
 
+  /// This enable the system to track mouseover / mouseout when the mouse is not moving but objects on the scene are moving or appearing / disappearing
+  /// if you dont need this, you can turn it off to avoid streaming `MouseInputType.still` events to the stage.
+  bool mouseEnableStillEvents = true;
+
   @override
   String toString() {
     return '$runtimeType';
   }
 
-  ui.Size _size;
-  ui.Paint _backgroundPaint;
-  DisplayBoundsDebugger _boundsDebugger;
+  ui.Size? _size;
+  ui.Paint? _backgroundPaint;
+  late DisplayBoundsDebugger _boundsDebugger;
 
 
   /// Shortcut to access the owner [SceneController].
@@ -49,15 +52,15 @@ class Stage extends GDisplayObjectContainer
   Signal get onHotReload => controller.onHotReload;
 
   /// The `backgroundPaint` hex color.
-  ui.Color get color => _backgroundPaint?.color;
+  ui.Color? get color => _backgroundPaint?.color;
 
   /// Sets the `backgroundPaint` Color.
-  set color(ui.Color value) {
+  set color(ui.Color? value) {
     if (value == null) {
       _backgroundPaint = null;
     } else {
       _backgroundPaint ??= ui.Paint();
-      _backgroundPaint.color = value;
+      _backgroundPaint!.color = value;
     }
   }
 
@@ -82,10 +85,10 @@ class Stage extends GDisplayObjectContainer
   void paint(ui.Canvas canvas) {
     /// scene start painting.
     if (maskBounds && _stageRectNative != null) {
-      canvas.clipRect(_stageRectNative);
+      canvas.clipRect(_stageRectNative!);
     }
     if (_backgroundPaint != null) {
-      canvas.drawPaint(_backgroundPaint);
+      canvas.drawPaint(_backgroundPaint!);
     }
     super.paint(canvas);
     if (DisplayBoundsDebugger.debugBoundsMode == DebugBoundsMode.stage) {
@@ -97,7 +100,7 @@ class Stage extends GDisplayObjectContainer
     }
   }
 
-  ui.Path _stageBoundsRectPath = ui.Path();
+  final ui.Path _stageBoundsRectPath = ui.Path();
   static final ui.Paint _stageBoundsRectPaint = ui.Paint()
     ..style = ui.PaintingStyle.stroke
     ..color = kColorBlack
@@ -106,20 +109,25 @@ class Stage extends GDisplayObjectContainer
   final GRect _stageRect = GRect();
 
   GRect get stageRect => _stageRect;
-  ui.Rect _stageRectNative;
+  ui.Rect? _stageRectNative;
 
   void $initFrameSize(ui.Size value) {
     if (value != _size) {
       _size = value;
-      if (_size.isEmpty) {
+      if (_size!.isEmpty) {
         trace(
-            "WARNING:\n\tStage has size <= 0 in width or height. If you rely on stage size for a responsive layout or rendering, make sure SceneBuilderWidget() has some child, or the parent is defining the constraints.");
+          // ignore: lines_longer_than_80_chars
+          "WARNING:\n\tStage has size <= 0 in width or height. "
+          "If you rely on stage size for a responsive layout or rendering,"
+          " make sure SceneBuilderWidget() has some child,"
+          " or the parent is defining the constraints.",
+        );
       }
       _stageRectNative =
-          _stageRect.setTo(0, 0, _size.width, _size.height).toNative();
-      _stageBoundsRectPath ??= ui.Path();
+          _stageRect.setTo(0, 0, _size!.width, _size!.height).toNative();
+      _stageBoundsRectPath;
       _stageBoundsRectPath.reset();
-      _stageBoundsRectPath.addRect(_stageRectNative);
+      _stageBoundsRectPath.addRect(_stageRectNative!);
       _stageBoundsRectPath.close();
       Graphics.updateStageRect(_stageRect);
       $onResized?.dispatch();
@@ -128,31 +136,22 @@ class Stage extends GDisplayObjectContainer
 
   /// Access the keyboard instance of the owner `SceneController`,
   /// Only available when [SceneConfig.useKeyboard] is true.
-  KeyboardManager get keyboard {
-    if (scene?.core?.keyboard == null) {
-      throw Exception(
-          'You need to enable keyboard capture, define useKeyboard=true '
-              'in your SceneController');
-    }
-    return scene?.core?.keyboard;
+  KeyboardManager? get keyboard {
+    return scene.core.keyboard;
   }
 
   /// Access the pointer (mouse or touch info) instance of the
   /// owner `SceneController`,
   /// Only available when [SceneConfig.usePointer] is true.
-  PointerManager get pointer {
-    if (scene?.core?.pointer == null) {
-      throw 'You need to enable pointer capture, define usePointer=true '
-          'in your SceneController';
-    }
-    return scene?.core?.pointer;
+  PointerManager? get pointer {
+    return scene.core.pointer;
   }
 
   @override
   bool hitTouch(GPoint localPoint, [bool useShape = false]) => true;
 
   @override
-  GDisplayObject hitTest(GPoint localPoint, [bool useShapes = false]) {
+  GDisplayObject? hitTest(GPoint localPoint, [bool useShape = false]) {
     if (!visible || !mouseEnabled) return null;
 
     /// location outside stage area, is not accepted.
@@ -186,7 +185,7 @@ class Stage extends GDisplayObjectContainer
     }
   }
 
-  GRect getStageBounds(GDisplayObject targetSpace, [GRect out]) {
+  GRect getStageBounds(GDisplayObject targetSpace, [GRect? out]) {
     out ??= GRect();
     out.setTo(0, 0, stageWidth, stageHeight);
     getTransformationMatrix(targetSpace, _sMatrix);
@@ -211,13 +210,19 @@ class Stage extends GDisplayObjectContainer
   void dispose() {
     _size = null;
     _backgroundPaint = null;
-    scene?.core?.pointer?.dispose();
-    scene?.core?.keyboard?.dispose();
+    scene.core.pointer.dispose();
+    scene.core.keyboard.dispose();
     $disposeResizeSignals();
     $disposeTickerSignals();
     $disposeStagePointerSignals();
     super.dispose();
   }
+
+  @override
+  double get mouseX => pointer!.mouseX;
+
+  @override
+  double get mouseY => pointer!.mouseY;
 
   @override
   double get width => throw 'Use `stage.stageWidth` instead.';
@@ -226,22 +231,22 @@ class Stage extends GDisplayObjectContainer
   double get height => throw 'Use `stage.stageHeight` instead.';
 
   @override
-  set width(double value) => throw 'Cannot set width of stage';
+  set width(double? value) => throw 'Cannot set width of stage';
 
   @override
-  set height(double value) => throw 'Cannot set height of stage';
+  set height(double? value) => throw 'Cannot set height of stage';
 
   @override
-  set x(double value) => throw 'Cannot set x-coordinate of stage';
+  set x(double? value) => throw 'Cannot set x-coordinate of stage';
 
   @override
-  set y(double value) => throw 'Cannot set y-coordinate of stage';
+  set y(double? value) => throw 'Cannot set y-coordinate of stage';
 
   @override
-  set scaleX(double value) => throw 'Cannot scale stage';
+  set scaleX(double? value) => throw 'Cannot scale stage';
 
   @override
-  set scaleY(double value) => throw 'Cannot scale stage';
+  set scaleY(double? value) => throw 'Cannot scale stage';
 
   @override
   set pivotX(double value) => throw 'Cannot pivot stage';
@@ -256,5 +261,5 @@ class Stage extends GDisplayObjectContainer
   set skewY(double value) => throw 'Cannot skew stage';
 
   @override
-  set rotation(double value) => throw 'Cannot rotate stage';
+  set rotation(double? value) => throw 'Cannot rotate stage';
 }

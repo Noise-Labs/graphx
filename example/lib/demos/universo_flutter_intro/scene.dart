@@ -1,24 +1,22 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:graphx/graphx.dart';
 
 class UniversoFlutterScene extends GSprite {
-  GSprite logo, fLogo;
-  GShape planetCirc, ringBack, ringFront;
-  GShape fLogo1, fLogo2, fLogo3;
+  late GSprite logo, fLogo;
+  late GShape planetCirc, ringBack, ringFront;
+  GShape? fLogo1, fLogo2, fLogo3;
 
   @override
   void addedToStage() {
-    stage.color = Color(0xff212121);
-    stage.maskBounds = true;
-    stage.showBoundsRect = true;
+    stage!.color = Color(0xff212121);
+    stage!.maskBounds = true;
+    stage!.showBoundsRect = true;
     _buildLogo();
   }
 
-  double get sw => stage.stageWidth;
+  double get sw => stage!.stageWidth;
 
-  double get sh => stage.stageHeight;
+  double get sh => stage!.stageHeight;
 
   void _buildLogo() {
     _buildStars();
@@ -28,10 +26,7 @@ class UniversoFlutterScene extends GSprite {
 
     planetCirc = GShape();
     logo.addChild(planetCirc);
-    planetCirc.graphics
-        .beginFill(const Color(0xff235998))
-        .drawCircle(0, 0, 415 / 2)
-        .endFill();
+    planetCirc.graphics.beginFill(const Color(0xff235998)).drawCircle(0, 0, 415 / 2).endFill();
 
     ringBack = _buildRing(0);
     ringFront = _buildRing(2);
@@ -52,8 +47,8 @@ class UniversoFlutterScene extends GSprite {
     fLogo1 = _buildPill(fLogo, 144, fH);
     fLogo2 = _buildPill(fLogo, 97, fH);
     fLogo3 = _buildPill(fLogo, 97, fH);
-    fLogo2.rotation = deg2rad(90);
-    fLogo2.y = fLogo3.y = 54;
+    fLogo2!.rotation = deg2rad(90);
+    fLogo2!.y = fLogo3!.y = 54;
     fLogo.alignPivot();
     fLogo.y -= 54;
 
@@ -62,10 +57,7 @@ class UniversoFlutterScene extends GSprite {
 
   GShape _buildPill(GSprite doc, double tw, double th) {
     var pill = GShape();
-    pill.graphics
-        .beginFill(Colors.white)
-        .drawRoundRect(0, 0, tw, th, 13)
-        .endFill();
+    pill.graphics.beginFill(Colors.white).drawRoundRect(0, 0, tw, th, 13).endFill();
     doc.addChild(pill);
     pill.pivotX = pill.pivotY = th / 2;
     return pill;
@@ -73,10 +65,7 @@ class UniversoFlutterScene extends GSprite {
 
   GShape _buildRing(int childIndex) {
     var ring = GShape();
-    ring.graphics
-        .lineStyle(28, const Color(0xff6ECEF7))
-        .drawCircle(0, 0, 100)
-        .endFill();
+    ring.graphics.lineStyle(28, const Color(0xff6ECEF7)).drawCircle(0, 0, 100).endFill();
     ring.scaleX = 2.7;
     ring.scaleY = .6;
     ring.rotation = deg2rad(-45 / 2);
@@ -137,9 +126,9 @@ class UniversoFlutterScene extends GSprite {
 
     fLogo.setProps(rotation: 0);
 
-    fLogo1.setProps(scaleX: 0.5, scaleY: .7, alpha: 0, rotation: 1.9);
-    fLogo2.setProps(scaleX: 0.2, scaleY: .5, alpha: 0, rotation: 0);
-    fLogo3.setProps(scaleX: 0.6, scaleY: .2, alpha: 0, rotation: rot);
+    fLogo1!.setProps(scaleX: 0.5, scaleY: .7, alpha: 0, rotation: 1.9);
+    fLogo2!.setProps(scaleX: 0.2, scaleY: .5, alpha: 0, rotation: 0);
+    fLogo3!.setProps(scaleX: 0.6, scaleY: .2, alpha: 0, rotation: rot);
 
     logo.tween(duration: 1.6, scale: 1, rotation: 0, ease: GEase.easeInOutCirc);
     planetCirc.tween(duration: 2.5, alpha: 1, ease: GEase.easeInSine);
@@ -158,14 +147,14 @@ class UniversoFlutterScene extends GSprite {
       alpha: 1,
     );
 
-    fLogo1.tween(
+    fLogo1!.tween(
       duration: .4,
       delay: .4,
       scale: 1,
       alpha: 1,
       overwrite: 0,
     );
-    fLogo1.tween(
+    fLogo1!.tween(
       duration: .8,
       delay: .6,
       rotation: 0,
@@ -173,14 +162,14 @@ class UniversoFlutterScene extends GSprite {
       overwrite: 0,
     );
 
-    fLogo2.tween(
+    fLogo2!.tween(
       delay: .9,
       duration: .4,
       scale: 1,
       alpha: 1,
       overwrite: 0,
     );
-    fLogo2.tween(
+    fLogo2!.tween(
       delay: .9,
       duration: .7,
       rotation: rot,
@@ -188,14 +177,14 @@ class UniversoFlutterScene extends GSprite {
       overwrite: 0,
     );
 
-    fLogo3.tween(
+    fLogo3!.tween(
       delay: 1,
       duration: .5,
       scale: 1,
       alpha: 1,
       overwrite: 0,
     );
-    fLogo3.tween(
+    fLogo3!.tween(
       delay: 1,
       duration: .7,
       rotation: 0,

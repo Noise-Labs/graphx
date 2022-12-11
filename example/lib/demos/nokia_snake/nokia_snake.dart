@@ -1,17 +1,9 @@
-/// Ismail Alam Khan and roipeker, 2020.
-///
-/// snake game in graphx.
-///
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:graphx/graphx.dart';
 
 import 'game_page_widget.dart';
 
 class NokiaSnakeMain extends StatefulWidget {
-  const NokiaSnakeMain({Key key}) : super(key: key);
+  const NokiaSnakeMain({Key? key}) : super(key: key);
 
   @override
   _NokiaSnakeMainState createState() => _NokiaSnakeMainState();
@@ -79,13 +71,12 @@ class _NokiaSnakeMainState extends State<NokiaSnakeMain> {
             ListTile(
               onTap: () {
                 Navigator.of(context).push(
-                  MaterialPageRoute(
-                      builder: (context) => GamePage(speed: speed)),
+                  MaterialPageRoute(builder: (context) => GamePage(speed: speed)),
                 );
               },
               trailing: PopupMenuButton(
                 initialValue: speed,
-                onSelected: (value) => setState(() {
+                onSelected: (dynamic value) => setState(() {
                   speed = value;
                 }),
                 itemBuilder: (_) => levels

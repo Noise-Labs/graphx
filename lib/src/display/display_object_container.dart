@@ -1,5 +1,5 @@
 import 'dart:ui' as ui;
-import 'package:flutter/foundation.dart';
+
 import '../../graphx.dart';
 
 typedef SortChildrenCallback = int Function(
@@ -41,7 +41,7 @@ abstract class GDisplayObjectContainer extends GDisplayObject {
   }
 
   @override
-  GRect getBounds(GDisplayObject targetSpace, [GRect out]) {
+  GRect? getBounds(GDisplayObject? targetSpace, [GRect? out]) {
     out ??= GRect();
     final len = children.length;
     if (len == 0) {
@@ -76,7 +76,7 @@ abstract class GDisplayObjectContainer extends GDisplayObject {
       return result;
     }
     final numChild = children.length;
-    GDisplayObject target;
+    GDisplayObject? target;
     for (var i = numChild - 1; i >= 0; --i) {
       var child = children[i];
       if (child.isMask) continue;
@@ -99,7 +99,7 @@ abstract class GDisplayObjectContainer extends GDisplayObject {
   }
 
   @override
-  GDisplayObject hitTest(GPoint localPoint, [bool useShape = false]) {
+  GDisplayObject? hitTest(GPoint localPoint, [bool useShape = false]) {
     if (!$hasTouchableArea || !mouseEnabled || !hitTestMask(localPoint)) {
       return null;
     }
@@ -128,12 +128,11 @@ abstract class GDisplayObjectContainer extends GDisplayObject {
     return null;
   }
 
-  GDisplayObject addChild(GDisplayObject child) {
+  T addChild<T extends GDisplayObject>(T child) {
     return addChildAt(child, children.length);
   }
 
-  GDisplayObject addChildAt(GDisplayObject child, int index) {
-    if (child == null) throw "::child can't be null";
+  T addChildAt<T extends GDisplayObject>(T child, int index) {
     if (index < 0 || index > children.length) {
       throw RangeError('Invalid child index');
     }
@@ -202,16 +201,16 @@ abstract class GDisplayObjectContainer extends GDisplayObject {
     requiresRedraw();
   }
 
-  GDisplayObject getChildAt(int index) {
+  T getChildAt<T extends GDisplayObject>(int index) {
     final len = children.length;
     if (index < 0) index = len + index;
-    if (index >= 0 && index < len) return children[index];
+    if (index >= 0 && index < len) return children[index] as T;
     throw RangeError('Invalid child index');
   }
 
-  GDisplayObject getChildByName(String name) {
+  T? getChildByName<T extends GDisplayObject>(String name) {
     for (final child in children) {
-      if (child.name == name) return child;
+      if (child.name == name) return child as T;
     }
     return null;
   }
@@ -237,7 +236,7 @@ abstract class GDisplayObjectContainer extends GDisplayObject {
 
   bool get hasChildren => children.isNotEmpty;
 
-  bool contains(GDisplayObject child, [bool recursive = true]) {
+  bool contains(GDisplayObject? child, [bool recursive = true]) {
     if (!recursive) return children.contains(child);
     while (child != null) {
       if (child == this) return true;
@@ -246,7 +245,7 @@ abstract class GDisplayObjectContainer extends GDisplayObject {
     return false;
   }
 
-  GDisplayObject removeChildAt(int index, [bool dispose = false]) {
+  T removeChildAt<T extends GDisplayObject>(int index, [bool dispose = false]) {
     if (index >= 0 && index < children.length) {
       requiresRedraw();
       final child = children[index];
@@ -262,22 +261,23 @@ abstract class GDisplayObjectContainer extends GDisplayObject {
       index = children.indexOf(child);
       if (index >= 0) children.removeAt(index);
       if (dispose) child.dispose();
-      return child;
+      return child as T;
     }
     throw 'Invalid child index';
   }
 
-  GDisplayObject removeChild(GDisplayObject child, [bool dispose = false]) {
-    if (child == null || child?.$parent != this) return null;
+  T? removeChild<T extends GDisplayObject>(T child, [bool dispose = false]) {
+    if (child.$parent != this) return null;
     final index = getChildIndex(child);
-    if (index > -1) return removeChildAt(index, dispose);
+    if (index > -1) return removeChildAt<T>(index, dispose);
     throw 'Invalid child index';
   }
 
   @override
   void update(double delta) {
     super.update(delta);
-    for (var child in children) {
+    final tmp = List.unmodifiable(children);
+    for (var child in tmp) {
       child.update(delta);
     }
   }
@@ -304,7 +304,7 @@ abstract class GDisplayObjectContainer extends GDisplayObject {
   @mustCallSuper
   void dispose() {
     for (final child in children) {
-      child?.dispose();
+      child.dispose();
     }
     children.clear();
     super.dispose();
